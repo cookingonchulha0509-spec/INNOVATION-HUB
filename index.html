@@ -2,352 +2,372 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- 🔥 Ultimate Mobile Lock: No zooming, no bouncing -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#000000">
-    <title>Innovation Hub | AI Assistant</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Innovation Hub | AI Agent</title>
     <style>
         :root {
-            --bg-oled: #000000;
+            --bg-color: #000000;
+            --accent-blue: #007bff;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
             --text-main: #ffffff;
-            --text-muted: #888888;
-            --glass-panel: rgba(20, 20, 22, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.12);
-            --brand-blue: #0A84FF;
-            --brand-purple: #BF5AF2;
+            --text-muted: #a0a0a0;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', -apple-system, sans-serif;
-            -webkit-tap-highlight-color: transparent; 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* 🔒 ROCK-SOLID BODY LOCK */
-        body {
-            background-color: var(--bg-oled);
+        body, html {
+            background-color: var(--bg-color);
             color: var(--text-main);
-            position: fixed; 
-            inset: 0; 
+            height: 100vh;
+            width: 100vw;
             overflow: hidden;
-            display: flex;
-            justify-content: center;
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(10, 132, 255, 0.15), transparent 40%),
-                radial-gradient(circle at 50% 100%, rgba(191, 90, 242, 0.1), transparent 50%);
+            position: fixed; /* Prevents screen bounce on mobile */
         }
 
-        .app-container {
-            width: 100%;
-            max-width: 500px; 
-            height: 100%;
-            position: relative;
+        /* App Container */
+        #app {
             display: flex;
             flex-direction: column;
+            height: 100%;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Floating Header */
+        header {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Spinning DP Aura */
+        .dp-container {
+            position: relative;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #007bff, #00d2ff, #007bff);
+            animation: spinAura 3s linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dp-container::after {
+            content: '';
+            position: absolute;
+            width: 41px;
+            height: 41px;
+            background: var(--bg-color);
+            border-radius: 50%;
             z-index: 1;
         }
 
-        /* 🔥 Floating Glass Header */
-        .floating-header {
-            position: absolute;
-            top: env(safe-area-inset-top, 15px); 
-            left: 15px; right: 15px;
-            background: var(--glass-panel);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 12px 16px;
+        .dp-text {
+            position: relative;
+            z-index: 2;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-main);
+        }
+
+        @keyframes spinAura {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .header-info h1 {
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Secure AI Pulse Dot */
+        .secure-status {
             display: flex;
             align-items: center;
-            gap: 12px;
-            z-index: 20;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-        }
-
-        .dp-ring {
-            width: 42px; height: 42px;
-            border-radius: 50%;
-            padding: 2px;
-            background: linear-gradient(135deg, var(--brand-blue), var(--brand-purple));
-            animation: spinBg 4s linear infinite;
-        }
-
-        @keyframes spinBg {
-            0% { filter: hue-rotate(0deg); }
-            100% { filter: hue-rotate(360deg); }
-        }
-
-        .dp {
-            width: 100%; height: 100%;
-            background: #222 url('dp.png') center/cover;
-            border-radius: 50%;
-            border: 2px solid var(--bg-oled);
-        }
-
-        .header-text h1 { font-size: 15.5px; font-weight: 600; letter-spacing: -0.3px; }
-        .header-text p {
+            gap: 6px;
             font-size: 11px;
-            color: var(--brand-blue);
-            margin-top: 2px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 500;
+            color: var(--text-muted);
+            margin-top: 3px;
         }
 
         .pulse-dot {
-            width: 6px; height: 6px;
-            background: var(--brand-blue);
+            width: 8px;
+            height: 8px;
+            background-color: #00ff88;
             border-radius: 50%;
-            box-shadow: 0 0 10px var(--brand-blue);
-            animation: blink 2s infinite ease-in-out;
+            box-shadow: 0 0 8px #00ff88;
+            animation: pulse 1.5s infinite alternate;
         }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* 📜 CHAT AREA (STABLE GRAVITY DESIGN) */
-        .chat-scroll {
-            flex: 1;
+        @keyframes pulse {
+            0% { opacity: 0.4; box-shadow: 0 0 2px #00ff88; }
+            100% { opacity: 1; box-shadow: 0 0 10px #00ff88; }
+        }
+
+        /* Chat Window */
+        #chat-window {
+            flex-grow: 1;
             overflow-y: auto;
-            -webkit-overflow-scrolling: touch; 
-            padding: 90px 15px 90px 15px; 
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 15px;
             scroll-behavior: smooth;
         }
-        .chat-scroll::-webkit-scrollbar { display: none; }
 
-        /* 🔥 THE MAGIC SPACER */
-        .spacer {
-            flex: 1;
-            min-height: 20px;
+        #chat-window::-webkit-scrollbar {
+            width: 4px;
+        }
+        #chat-window::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 10px;
         }
 
-        /* 🚀 Spring Physics Messages */
-        .msg-wrapper {
-            display: flex;
-            width: 100%;
-        }
-
-        .msg {
+        /* Glassmorphism Bubbles */
+        .message {
             max-width: 85%;
-            padding: 14px 18px;
-            border-radius: 20px;
+            padding: 12px 16px;
+            border-radius: 12px;
             font-size: 14.5px;
             line-height: 1.5;
+            word-wrap: break-word;
             opacity: 0;
-            transform: scale(0.9) translateY(20px);
-            animation: springPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transform: translateY(10px);
+            animation: fadeIn 0.3s forwards ease-out;
         }
 
-        @keyframes springPop {
-            to { opacity: 1; transform: scale(1) translateY(0); }
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .bot-msg-wrapper { justify-content: flex-start; }
-        .bot-msg {
-            background: rgba(30, 30, 35, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-bottom-left-radius: 4px;
-            color: #ececec;
-            transform-origin: bottom left;
-        }
-
-        .user-msg-wrapper { justify-content: flex-end; }
-        .user-msg {
-            background: linear-gradient(135deg, var(--brand-blue), var(--brand-purple));
-            color: #fff;
-            border-bottom-right-radius: 4px;
-            box-shadow: 0 8px 20px rgba(10, 132, 255, 0.25);
-            transform-origin: bottom right;
-        }
-
-        /* 🔥 Floating Dock / Input Area */
-        .floating-input {
-            position: absolute;
-            bottom: env(safe-area-inset-bottom, 15px);
-            left: 15px; right: 15px;
-            background: rgba(15, 15, 18, 0.85);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
+        .msg-bot {
+            align-self: flex-start;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
-            border-radius: 30px;
-            padding: 6px 6px 6px 20px;
+            border-left: 4px solid var(--accent-blue); /* 4px blue accent */
+            border-bottom-left-radius: 4px;
+        }
+
+        .msg-user {
+            align-self: flex-end;
+            background: #1a1a24;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Input Area */
+        #input-container {
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid var(--glass-border);
             display: flex;
-            align-items: center;
-            z-index: 20;
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            gap: 10px;
+            padding-bottom: env(safe-area-inset-bottom, 15px); /* iOS safe area */
         }
 
-        .floating-input:focus-within {
-            border-color: rgba(10, 132, 255, 0.6);
-            background: rgba(20, 20, 24, 0.95);
-            box-shadow: 0 0 25px rgba(10, 132, 255, 0.15), 0 -10px 40px rgba(0,0,0,0.8);
-            transform: translateY(-2px);
-        }
-
-        .floating-input input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
+        input {
+            flex-grow: 1;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 14px 20px;
+            border-radius: 30px;
             color: var(--text-main);
             font-size: 15px;
-            padding: 10px 0;
+            outline: none;
+            transition: border 0.3s;
         }
-        .floating-input input::placeholder { color: var(--text-muted); }
 
-        .send-btn {
-            width: 40px; height: 40px;
-            border-radius: 50%;
+        input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        button {
+            background: var(--accent-blue);
+            color: white;
             border: none;
-            background: var(--text-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
             cursor: pointer;
-            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, background 0.2s;
         }
 
-        .send-btn svg { width: 18px; height: 18px; fill: #000; margin-left: 2px; }
-        .send-btn:active { transform: scale(0.85); background: var(--brand-blue); }
+        button:active {
+            transform: scale(0.9);
+        }
 
-        /* Typing Indicator */
-        .typing { display: flex; gap: 5px; align-items: center; height: 20px;}
-        .typing span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: bounce 1.2s infinite; }
-        .typing span:nth-child(2) { animation-delay: 0.15s; }
-        .typing span:nth-child(3) { animation-delay: 0.3s; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(-4px); background: var(--text-main); opacity: 1; } }
+        button svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            margin-left: 2px;
+        }
 
+        /* Loading Dots */
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            padding: 12px 16px;
+            background: var(--glass-bg);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: 12px;
+            border-bottom-left-radius: 4px;
+        }
+        .typing-indicator span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <!-- Floating Header -->
-        <div class="floating-header">
-            <div class="dp-ring">
-                <div class="dp"></div>
+<div id="app">
+    <header>
+        <div class="profile-section">
+            <div class="dp-container">
+                <span class="dp-text">IH</span>
             </div>
-            <div class="header-text">
+            <div class="header-info">
                 <h1>Innovation Hub</h1>
-                <p><span class="pulse-dot"></span> Secure AI Link</p>
+                <div class="secure-status">
+                    <div class="pulse-dot"></div>
+                    Secure AI Agent
+                </div>
             </div>
         </div>
+    </header>
 
-        <!-- Stable Chat Area with Bottom Anchor -->
-        <div class="chat-scroll" id="chat-box">
-            <div class="spacer"></div>
-            <div class="msg-wrapper bot-msg-wrapper">
-                <div class="msg bot-msg">Welcome to Innovation Hub. How can I assist you with technology today?</div>
-            </div>
-        </div>
-
-        <!-- Floating Input Dock -->
-        <div class="floating-input">
-            <input type="text" id="user-input" placeholder="Message Innovation Hub..." autocomplete="off">
-            <button class="send-btn" id="send-btn">
-                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
-            </button>
+    <div id="chat-window">
+        <div class="message msg-bot">Hi! I'm the official Innovation Hub AI. Whether you need Web Development, Video Editing, or Thumbnail Design, I'm here to answer your questions about Dipesh's services. How can I help?</div>
+        <div class="typing-indicator" id="typing">
+            <span></span><span></span><span></span>
         </div>
     </div>
 
-    <script>
-        const chatBox = document.getElementById('chat-box');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
+    <div id="input-container">
+        <input type="text" id="user-input" placeholder="Message Innovation Hub..." autocomplete="off">
+        <button id="send-btn">
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+    </div>
+</div>
 
-        // 🔥 AI Memory (Chat History)
-        let messagesHistory = [];
-
-        function scrollToBottom() {
-            requestAnimationFrame(() => {
-                chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
-            });
-        }
-
-        function addMessage(text, isUser) {
-            const wrapper = document.createElement('div');
-            wrapper.classList.add('msg-wrapper', isUser ? 'user-msg-wrapper' : 'bot-msg-wrapper');
-            
-            const msgDiv = document.createElement('div');
-            msgDiv.classList.add('msg', isUser ? 'user-msg' : 'bot-msg');
-            msgDiv.textContent = text;
-            
-            wrapper.appendChild(msgDiv);
-            chatBox.appendChild(wrapper);
-            scrollToBottom();
-        }
-
-        function showTyping() {
-            const wrapper = document.createElement('div');
-            wrapper.classList.add('msg-wrapper', 'bot-msg-wrapper');
-            wrapper.id = 'typing-indicator';
-            
-            const div = document.createElement('div');
-            div.classList.add('msg', 'bot-msg');
-            div.innerHTML = `<div class="typing"><span></span><span></span><span></span></div>`;
-            
-            wrapper.appendChild(div);
-            chatBox.appendChild(wrapper);
-            scrollToBottom();
-        }
-
-        function removeTyping() {
-            const ind = document.getElementById('typing-indicator');
-            if(ind) ind.remove();
-        }
-
-        // 🔥 Asli API Calling Logic
-        async function handleSend() {
-            const text = userInput.value.trim();
-            if (!text) return;
-
-            // User Message UI update
-            addMessage(text, true);
-            messagesHistory.push({ role: "user", content: text });
-            userInput.value = '';
-
-            // Keep keyboard open on mobile
-            userInput.focus(); 
-            showTyping();
-
-            try {
-                // Backend file ko call karna (api/chat.js)
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messages: messagesHistory })
-                });
-
-                const data = await response.json();
-                removeTyping();
-
-                if (data.reply) {
-                    addMessage(data.reply, false);
-                    messagesHistory.push({ role: "assistant", content: data.reply });
-                } else {
-                    addMessage("System Error: No valid response from core.", false);
-                }
-            } catch (error) {
-                removeTyping();
-                addMessage("Connection Error: Unable to reach Innovation Hub servers.", false);
-                console.error("Fetch error:", error);
-            }
-        }
-
-        sendBtn.addEventListener('click', handleSend);
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSend();
+<script>
+    // --- Mobile Keyboard Fix (Tecno Pova 6 Neo & Androids) ---
+    const appContainer = document.getElementById('app');
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+            appContainer.style.height = window.visualViewport.height + 'px';
+            window.scrollTo(0, 0);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         });
+    }
 
-        // Keeps chat at bottom when mobile keyboard opens
-        window.visualViewport.addEventListener('resize', scrollToBottom);
-    </script>
+    // --- DOM Elements ---
+    const chatWindow = document.getElementById('chat-window');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const typingIndicator = document.getElementById('typing');
+
+    // --- Typewriter Effect (6ms fast reply) ---
+    function typeWriter(element, text, index = 0) {
+        if (index < text.length) {
+            element.textContent += text.charAt(index);
+            chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll
+            setTimeout(() => typeWriter(element, text, index + 1), 6);
+        }
+    }
+
+    function addMessage(text, sender) {
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('message', sender === 'user' ? 'msg-user' : 'msg-bot');
+        
+        chatWindow.insertBefore(msgDiv, typingIndicator);
+        
+        if (sender === 'bot') {
+            typeWriter(msgDiv, text);
+        } else {
+            msgDiv.textContent = text;
+        }
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    // --- API Fetch Logic ---
+    async function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        addMessage(text, 'user');
+        userInput.value = '';
+        typingIndicator.style.display = 'block';
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        try {
+            // Connecting Frontend to Vercel Backend
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
+
+            const data = await response.json();
+            typingIndicator.style.display = 'none';
+
+            if (data.reply) {
+                addMessage(data.reply, 'bot');
+            } else {
+                addMessage("System error: Unable to reach knowledge base.", 'bot');
+            }
+        } catch (error) {
+            typingIndicator.style.display = 'none';
+            addMessage("Network error: Please check your connection.", 'bot');
+        }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+</script>
+
 </body>
 </html>
