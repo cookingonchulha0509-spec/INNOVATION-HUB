@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- 🔥 Ultimate Mobile Lock: No zooming, no bouncing -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <title>Innovation Hub | AI Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-oled: #000000;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --glass-panel: rgba(20, 20, 22, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --brand-blue: #0A84FF;
+            --brand-purple: #BF5AF2;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        /* 🔒 ROCK-SOLID BODY LOCK */
+        body {
+            background-color: var(--bg-oled);
+            color: var(--text-main);
+            position: fixed; 
+            inset: 0; 
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(10, 132, 255, 0.15), transparent 40%),
+                radial-gradient(circle at 50% 100%, rgba(191, 90, 242, 0.1), transparent 50%);
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 500px; 
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            z-index: 1;
+        }
+
+        /* 🔥 Floating Glass Header */
+        .floating-header {
+            position: absolute;
+            top: env(safe-area-inset-top, 15px); 
+            left: 15px; right: 15px;
+            background: var(--glass-panel);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 20;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        }
+
+        .dp-ring {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            padding: 2px;
+            background: linear-gradient(135deg, var(--brand-blue), var(--brand-purple));
+            animation: spinBg 4s linear infinite;
+        }
+
+        @keyframes spinBg {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .dp {
+            width: 100%; height: 100%;
+            background: #222 url('dp.png') center/cover;
+            border-radius: 50%;
+            border: 2px solid var(--bg-oled);
+        }
+
+        .header-text h1 { font-size: 15.5px; font-weight: 600; letter-spacing: -0.3px; }
+        .header-text p {
+            font-size: 11px;
+            color: var(--brand-blue);
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+        }
+
+        .pulse-dot {
+            width: 6px; height: 6px;
+            background: var(--brand-blue);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--brand-blue);
+            animation: blink 2s infinite ease-in-out;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* 📜 CHAT AREA (STABLE GRAVITY DESIGN) */
+        .chat-scroll {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; 
+            padding: 90px 15px 90px 15px; 
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+        .chat-scroll::-webkit-scrollbar { display: none; }
+
+        /* 🔥 THE MAGIC SPACER */
+        .spacer {
+            flex: 1;
+            min-height: 20px;
+        }
+
+        /* 🚀 Spring Physics Messages */
+        .msg-wrapper {
+            display: flex;
+            width: 100%;
+        }
+
+        .msg {
+            max-width: 85%;
+            padding: 14px 18px;
+            border-radius: 20px;
+            font-size: 14.5px;
+            line-height: 1.5;
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+            animation: springPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes springPop {
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .bot-msg-wrapper { justify-content: flex-start; }
+        .bot-msg {
+            background: rgba(30, 30, 35, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom-left-radius: 4px;
+            color: #ececec;
+            transform-origin: bottom left;
+        }
+
+        .user-msg-wrapper { justify-content: flex-end; }
+        .user-msg {
+            background: linear-gradient(135deg, var(--brand-blue), var(--brand-purple));
+            color: #fff;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 8px 20px rgba(10, 132, 255, 0.25);
+            transform-origin: bottom right;
+        }
+
+        /* 🔥 Floating Dock / Input Area */
+        .floating-input {
+            position: absolute;
+            bottom: env(safe-area-inset-bottom, 15px);
+            left: 15px; right: 15px;
+            background: rgba(15, 15, 18, 0.85);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 6px 6px 6px 20px;
+            display: flex;
+            align-items: center;
+            z-index: 20;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .floating-input:focus-within {
+            border-color: rgba(10, 132, 255, 0.6);
+            background: rgba(20, 20, 24, 0.95);
+            box-shadow: 0 0 25px rgba(10, 132, 255, 0.15), 0 -10px 40px rgba(0,0,0,0.8);
+            transform: translateY(-2px);
+        }
+
+        .floating-input input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-size: 15px;
+            padding: 10px 0;
+        }
+        .floating-input input::placeholder { color: var(--text-muted); }
+
+        .send-btn {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .send-btn svg { width: 18px; height: 18px; fill: #000; margin-left: 2px; }
+        .send-btn:active { transform: scale(0.85); background: var(--brand-blue); }
+
+        /* Typing Indicator */
+        .typing { display: flex; gap: 5px; align-items: center; height: 20px;}
+        .typing span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: bounce 1.2s infinite; }
+        .typing span:nth-child(2) { animation-delay: 0.15s; }
+        .typing span:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(-4px); background: var(--text-main); opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Floating Header -->
+        <div class="floating-header">
+            <div class="dp-ring">
+                <div class="dp"></div>
+            </div>
+            <div class="header-text">
+                <h1>Innovation Hub</h1>
+                <p><span class="pulse-dot"></span> Secure AI Link</p>
+            </div>
+        </div>
+
+        <!-- Stable Chat Area with Bottom Anchor -->
+        <div class="chat-scroll" id="chat-box">
+            <div class="spacer"></div>
+            <div class="msg-wrapper bot-msg-wrapper">
+                <div class="msg bot-msg">Welcome to Innovation Hub. How can I assist you with technology today?</div>
+            </div>
+        </div>
+
+        <!-- Floating Input Dock -->
+        <div class="floating-input">
+            <input type="text" id="user-input" placeholder="Message Innovation Hub..." autocomplete="off">
+            <button class="send-btn" id="send-btn">
+                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        // 🔥 AI Memory (Chat History)
+        let messagesHistory = [];
+
+        function scrollToBottom() {
+            requestAnimationFrame(() => {
+                chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+            });
+        }
+
+        function addMessage(text, isUser) {
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('msg-wrapper', isUser ? 'user-msg-wrapper' : 'bot-msg-wrapper');
+            
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('msg', isUser ? 'user-msg' : 'bot-msg');
+            msgDiv.textContent = text;
+            
+            wrapper.appendChild(msgDiv);
+            chatBox.appendChild(wrapper);
+            scrollToBottom();
+        }
+
+        function showTyping() {
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('msg-wrapper', 'bot-msg-wrapper');
+            wrapper.id = 'typing-indicator';
+            
+            const div = document.createElement('div');
+            div.classList.add('msg', 'bot-msg');
+            div.innerHTML = `<div class="typing"><span></span><span></span><span></span></div>`;
+            
+            wrapper.appendChild(div);
+            chatBox.appendChild(wrapper);
+            scrollToBottom();
+        }
+
+        function removeTyping() {
+            const ind = document.getElementById('typing-indicator');
+            if(ind) ind.remove();
+        }
+
+        // 🔥 Asli API Calling Logic
+        async function handleSend() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // User Message UI update
+            addMessage(text, true);
+            messagesHistory.push({ role: "user", content: text });
+            userInput.value = '';
+
+            // Keep keyboard open on mobile
+            userInput.focus(); 
+            showTyping();
+
+            try {
+                // Backend file ko call karna (api/chat.js)
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: messagesHistory })
+                });
+
+                const data = await response.json();
+                removeTyping();
+
+                if (data.reply) {
+                    addMessage(data.reply, false);
+                    messagesHistory.push({ role: "assistant", content: data.reply });
+                } else {
+                    addMessage("System Error: No valid response from core.", false);
+                }
+            } catch (error) {
+                removeTyping();
+                addMessage("Connection Error: Unable to reach Innovation Hub servers.", false);
+                console.error("Fetch error:", error);
+            }
+        }
+
+        sendBtn.addEventListener('click', handleSend);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSend();
+        });
+
+        // Keeps chat at bottom when mobile keyboard opens
+        window.visualViewport.addEventListener('resize', scrollToBottom);
+    </script>
+</body>
+</html>
