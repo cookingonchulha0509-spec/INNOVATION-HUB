@@ -1,40 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tapcraves - Strict KYC Capture</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #000; color: white; overflow: hidden; }
-        
-        #camera-screen, #preview-screen { width: 100vw; height: 100vh; display: flex; flex-direction: column; position: absolute; }
-        #preview-screen { display: none; background-color: #111; justify-content: center; align-items: center; }
-
-        #video-container { position: relative; flex-grow: 1; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        
-        /* Strict KYC UI Corners */
-        #scanner-frame {
-            position: absolute; width: 280px; height: 350px;
-            border: 4px solid transparent;
-            transition: all 0.3s;
-        }
-        /* Corners design */
-        #scanner-frame::before, #scanner-frame::after, #scanner-frame > div::before, #scanner-frame > div::after {
-            content: ''; position: absolute; width: 40px; height: 40px; border-color: white; border-style: solid; transition: border-color 0.3s;
-        }
-        #scanner-frame::before { top: 0; left: 0; border-width: 4px 0 0 4px; }
-        #scanner-frame::after { top: 0; right: 0; border-width: 4px 4px 0 0; }
-        #scanner-frame > div::before { bottom: 0; left: 0; border-width: 0 0 4px 4px; }
-        #scanner-frame > div::after { bottom: 0; right: 0; border-width: 0 4px 4px 0; }
-
-        /* Status Colors */
-        .status-neutral #scanner-frame::before, .status-neutral #scanner-frame::after, .status-neutral #scanner-frame > div::before, .status-neutral #scanner-frame > div::after { border-color: white; }
-        .status-good #scanner-frame::before, .status-good #scanner-frame::after, .status-good #scanner-frame > div::before, .status-good #scanner-frame > div::after { border-color: #00E676; }
-        .status-bad #scanner-frame::before, .status-bad #scanner-frame::after, .status-bad #scanner-frame > div::before, .status-bad #scanner-frame > div::after { border-color: #FF1744; }
-
-        /* Measurement UI */
+https://innovation-hub-mu.vercel.app/        /* Measurement UI */
         #top-ui { position: absolute; top: 30px; width: 100%; padding: 0 20px; text-align: center; z-index: 10; }
         #instruction { font-size: 22px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); margin-bottom: 15px; }
         
