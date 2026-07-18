@@ -3,231 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tapcraves - Professional 3D Capture</title>
+    <title>Tapcraves - Video to 360 Auto-Generator</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #111; color: white; overflow: hidden; }
+        body { font-family: sans-serif; background-color: #111; color: white; overflow: hidden; }
         
-        /* Containers */
-        #camera-screen, #preview-screen { width: 100vw; height: 100vh; display: flex; flex-direction: column; position: absolute; top: 0; left: 0; }
+        #camera-screen, #preview-screen { width: 100vw; height: 100vh; display: flex; flex-direction: column; position: absolute; }
         #preview-screen { display: none; background-color: #1a1a1a; justify-content: center; align-items: center; }
 
-        /* Camera UI */
-        #video-container { position: relative; flex-grow: 1; display: flex; justify-content: center; align-items: center; overflow: hidden; background: #000; }
+        #video-container { position: relative; flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #000; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: cover; }
         
-        /* The Guiding Overlay */
-        #guide-overlay {
-            position: absolute; width: 280px; height: 280px;
-            border: 3px dashed rgba(255, 255, 255, 0.5);
-            border-radius: 50%; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
-            transition: border-color 0.3s ease; display: flex; justify-content: center; align-items: center;
+        /* Center Guide */
+        #guide-box {
+            position: absolute; width: 250px; height: 250px; border: 2px solid rgba(255, 255, 255, 0.4); border-radius: 20px;
+            display: flex; justify-content: center; align-items: center; pointer-events: none;
         }
-        #guide-overlay::after { content: '+'; color: rgba(255, 255, 255, 0.3); font-size: 40px; font-weight: 100; }
-        .guide-active { border-color: #00E676 !important; }
-
+        #guide-box::before { content: 'Keep Burger Here'; color: rgba(255,255,255,0.5); font-weight: bold; }
+        
         /* UI Controls */
-        #ui-panel { position: absolute; bottom: 0; width: 100%; padding: 30px 20px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); text-align: center; }
-        #instruction { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #FF4757; }
-        #progress { font-size: 14px; color: #aaa; margin-bottom: 20px; }
+        #ui-panel { position: absolute; bottom: 0; width: 100%; padding: 30px 20px; text-align: center; background: linear-gradient(transparent, rgba(0,0,0,0.9)); }
         
-        button { padding: 15px 30px; border: none; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; transition: transform 0.1s; }
-        button:active { transform: scale(0.95); }
-        #capture-btn { background-color: #FF4757; color: white; width: 200px; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4); }
+        /* Record Button */
+        #record-btn { 
+            width: 80px; height: 80px; border-radius: 50%; background-color: #FF4757; border: 5px solid white;
+            cursor: pointer; transition: 0.2s; outline: none; margin: 0 auto;
+        }
+        #record-btn.recording { transform: scale(1.2); border-color: #FF4757; background-color: white; }
         
-        /* 360 Preview UI */
-        #viewer-container { position: relative; width: 100%; max-width: 400px; height: 400px; cursor: grab; touch-action: pan-y; margin: auto; }
-        #viewer-container:active { cursor: grabbing; }
-        #product-image { width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; border-radius: 10px; }
-        
-        #preview-controls { position: absolute; bottom: 30px; width: 100%; text-align: center; display: flex; justify-content: center; gap: 15px; }
-        .btn-secondary { background: #333; color: white; }
-        .btn-primary { background: #00E676; color: black; }
-        .swipe-hint { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #888; animation: pulse 1.5s infinite; }
+        #instruction { font-size: 16px; font-weight: bold; margin-bottom: 20px; color: #fff; text-shadow: 1px 1px 5px black; }
 
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        /* 360 Viewer */
+        #viewer-container { width: 100%; max-width: 400px; height: 400px; position: relative; touch-action: pan-y; cursor: grab; }
+        #product-image { width: 100%; height: 100%; object-fit: contain; pointer-events: none; border-radius: 10px; }
+        
+        #retake-btn { position: absolute; bottom: 30px; padding: 12px 30px; background: #333; color: white; border: none; border-radius: 20px; font-weight: bold; }
         canvas { display: none; }
     </style>
 </head>
 <body>
 
-    <!-- SCREEN 1: Camera & Capture -->
+    <!-- SCREEN 1: Video Record -->
     <div id="camera-screen">
         <div id="video-container">
             <video id="camera" autoplay playsinline></video>
-            <div id="guide-overlay"></div>
+            <div id="guide-box"></div>
         </div>
         <div id="ui-panel">
-            <div id="instruction">Angle 1: Front View</div>
-            <div id="progress">0 / 8 Photos Captured</div>
-            <button id="capture-btn" onclick="takePhoto()">Capture Perfect Frame</button>
+            <div id="instruction">Hold button & move camera around the burger</div>
+            <button id="record-btn"></button>
+            <div id="frame-count" style="margin-top: 10px; color: #aaa; font-size: 12px;">Frames: 0</div>
         </div>
     </div>
 
-    <!-- SCREEN 2: 360 Interactive Preview -->
+    <!-- SCREEN 2: 360 Preview -->
     <div id="preview-screen">
         <div id="viewer-container">
-            <div class="swipe-hint">↔ Swipe left/right to rotate</div>
-            <img id="product-image" src="" alt="360 Burger Preview">
+            <div style="position:absolute; top:-30px; width:100%; text-align:center; color:#FF4757; font-weight:bold;">Ultra-Smooth 360 View</div>
+            <img id="product-image" src="">
         </div>
-        <div id="preview-controls">
-            <button class="btn-secondary" onclick="resetSystem()">Retake All</button>
-            <button class="btn-primary" onclick="uploadData()">Looks Good! (Upload)</button>
-        </div>
+        <button id="retake-btn" onclick="resetSystem()">Retake Video</button>
     </div>
 
-    <!-- Hidden Canvas to process images -->
     <canvas id="canvas"></canvas>
 
     <script>
-        // --- 1. System Variables ---
-        const totalAngles = 8;
-        const capturedImages = [];
-        const anglesGuide = [
-            "Angle 1: Front View", 
-            "Angle 2: Rotate Object 45° Right", 
-            "Angle 3: Rotate Object 90° Right", 
-            "Angle 4: Back-Right Angle", 
-            "Angle 5: Complete Back View", 
-            "Angle 6: Back-Left Angle", 
-            "Angle 7: Rotate Object 90° Left", 
-            "Angle 8: Front-Left Angle"
-        ];
-
-        // --- DOM Elements ---
         const video = document.getElementById('camera');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
+        const recordBtn = document.getElementById('record-btn');
+        const instruction = document.getElementById('instruction');
+        const frameCountTxt = document.getElementById('frame-count');
         
-        const cameraScreen = document.getElementById('camera-screen');
-        const previewScreen = document.getElementById('preview-screen');
-        const guideOverlay = document.getElementById('guide-overlay');
-        const instructionTxt = document.getElementById('instruction');
-        const progressTxt = document.getElementById('progress');
-        
-        // Viewer elements
-        const viewerContainer = document.getElementById('viewer-container');
-        const productImg = document.getElementById('product-image');
-
         let videoStream = null;
+        let isRecording = false;
+        let captureInterval;
+        let framesArray = []; // Frames yahan save honge
+        let totalFrames = 0;
 
-        // --- 2. Camera Setup ---
+        // Start Camera
         async function startCamera() {
             try {
-                // Phone ke back camera ko force karne ke liye 'environment'
-                videoStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1080 } } 
-                });
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: 720, height: 720 } });
                 video.srcObject = videoStream;
-            } catch (err) {
-                alert("Camera access denied ya support nahi kar raha. " + err);
-            }
+            } catch (err) { alert("Camera issue: " + err); }
         }
-
-        // Initialize camera on load
         startCamera();
 
-        // --- 3. Capture Logic ---
-        function takePhoto() {
-            if (capturedImages.length >= totalAngles) return;
-
-            // Visual feedback: Overlay ko green kardo ek second ke liye
-            guideOverlay.classList.add('guide-active');
-            setTimeout(() => guideOverlay.classList.remove('guide-active'), 300);
-
-            // Canvas size video feed jitna set karo
+        // --- RECORDING LOGIC (Extract Frames automatically) ---
+        function startRecording() {
+            framesArray = [];
+            isRecording = true;
+            recordBtn.classList.add('recording');
+            instruction.innerText = "Recording... Move slowly around the burger!";
+            
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            
-            // Draw frame to canvas and convert to Base64 Image
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8); // 0.8 is quality
-            
-            capturedImages.push(imageDataUrl);
-            
-            // Update UI
-            progressTxt.innerText = `${capturedImages.length} / ${totalAngles} Photos Captured`;
-            
-            if (capturedImages.length < totalAngles) {
-                // Next angle ka instruction dikhao
-                instructionTxt.innerText = anglesGuide[capturedImages.length];
-            } else {
-                // 8 photos puri ho gayi! Camera stop karo aur preview dikhao
-                stopCamera();
-                showPreview();
-            }
+
+            // Har 100 millisecond me ek frame nikal lo (1 second me 10 frames = Ultra smooth)
+            captureInterval = setInterval(() => {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                // Quality 0.6 rakhi hai taaki memory crash na ho
+                framesArray.push(canvas.toDataURL('image/jpeg', 0.6));
+                frameCountTxt.innerText = `Frames: ${framesArray.length}`;
+            }, 100); 
         }
 
-        function stopCamera() {
-            if (videoStream) {
-                videoStream.getTracks().forEach(track => track.stop());
+        function stopRecording() {
+            if (!isRecording) return;
+            isRecording = false;
+            clearInterval(captureInterval);
+            recordBtn.classList.remove('recording');
+            
+            totalFrames = framesArray.length;
+            
+            if(totalFrames < 10) {
+                alert("Too short! Please record for at least 2-3 seconds.");
+                framesArray = [];
+                instruction.innerText = "Hold button & move camera around the burger";
+                return;
             }
+            
+            showPreview();
         }
 
-        // --- 4. 360 Preview Logic (Glitch Free) ---
-        let currentFrame = 1;
+        // Pointer events support mobile touch AND mouse click
+        recordBtn.addEventListener('pointerdown', startRecording);
+        window.addEventListener('pointerup', stopRecording); // Screen pe kahin bhi chhodne par ruk jayega
+
+        // --- 360 PREVIEW LOGIC ---
+        let currentFrameIndex = 0;
         let isDragging = false;
         let startX = 0;
-        let startFrame = 1;
-        const sensitivity = 15; // Swipe speed control
+        let startFrameIndex = 0;
+        const sensitivity = 8; // Kam sensitivity = smooth movement
 
         function showPreview() {
-            cameraScreen.style.display = 'none';
-            previewScreen.style.display = 'flex';
+            document.getElementById('camera-screen').style.display = 'none';
+            document.getElementById('preview-screen').style.display = 'flex';
             
-            // Pehli image load karo
-            productImg.src = capturedImages[0];
+            const productImg = document.getElementById('product-image');
+            productImg.src = framesArray[0]; // Load first frame
             
-            // Event listeners for Touch & Mouse
-            viewerContainer.addEventListener('pointerdown', startDrag);
-            window.addEventListener('pointermove', onDrag);
-            window.addEventListener('pointerup', endDrag);
-            window.addEventListener('pointercancel', endDrag);
+            const viewer = document.getElementById('viewer-container');
+            
+            viewer.onpointerdown = (e) => {
+                isDragging = true;
+                startX = e.clientX;
+                startFrameIndex = currentFrameIndex;
+            };
+            
+            window.onpointermove = (e) => {
+                if (!isDragging) return;
+                let moveDistance = e.clientX - startX;
+                let frameShift = Math.floor(moveDistance / sensitivity);
+                
+                // Calculate new frame with loop
+                currentFrameIndex = (startFrameIndex - frameShift) % totalFrames;
+                if (currentFrameIndex < 0) currentFrameIndex += totalFrames;
+                
+                productImg.src = framesArray[currentFrameIndex];
+            };
+            
+            window.onpointerup = () => { isDragging = false; };
         }
 
-        function startDrag(e) {
-            isDragging = true;
-            startX = e.clientX;
-            startFrame = currentFrame;
-        }
-
-        function onDrag(e) {
-            if (!isDragging) return;
-            
-            let currentX = e.clientX;
-            let distanceMoved = currentX - startX;
-            let framesToMove = Math.floor(distanceMoved / sensitivity);
-            
-            // Loop array perfectly
-            currentFrame = (startFrame - framesToMove) % totalAngles;
-            if (currentFrame <= 0) {
-                currentFrame += totalAngles;
-            }
-
-            // Real-time update image source from array
-            productImg.src = capturedImages[currentFrame - 1];
-        }
-
-        function endDrag() {
-            isDragging = false;
-        }
-
-        // --- 5. System Controls ---
         function resetSystem() {
-            capturedImages.length = 0; // Clear array
-            currentFrame = 1;
-            instructionTxt.innerText = anglesGuide[0];
-            progressTxt.innerText = `0 / ${totalAngles} Photos Captured`;
-            
-            previewScreen.style.display = 'none';
-            cameraScreen.style.display = 'flex';
-            
-            startCamera();
-        }
-
-        function uploadData() {
-            // Production me yahan se capturedImages array backend (Firebase) pe jayega
-            alert("Perfect! Yeh 8 images ab database me save hongi aur user ko app me dikhengi.");
+            document.getElementById('preview-screen').style.display = 'none';
+            document.getElementById('camera-screen').style.display = 'flex';
+            instruction.innerText = "Hold button & move camera around the burger";
+            frameCountTxt.innerText = "Frames: 0";
         }
     </script>
 </body>
