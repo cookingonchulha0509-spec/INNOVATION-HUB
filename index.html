@@ -3,707 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Innovation Hub | AI Agent</title>
+    <title>Tapcraves - Professional 3D Capture</title>
     <style>
-        :root {
-            --bg-color: #000000;
-            --accent-blue: #007bff;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #ffffff;
-            --text-muted: #a0a0a0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #111; color: white; overflow: hidden; }
+        
+        /* Containers */
+        #camera-screen, #preview-screen { width: 100vw; height: 100vh; display: flex; flex-direction: column; position: absolute; top: 0; left: 0; }
+        #preview-screen { display: none; background-color: #1a1a1a; justify-content: center; align-items: center; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+        /* Camera UI */
+        #video-container { position: relative; flex-grow: 1; display: flex; justify-content: center; align-items: center; overflow: hidden; background: #000; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* The Guiding Overlay */
+        #guide-overlay {
+            position: absolute; width: 280px; height: 280px;
+            border: 3px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 50%; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+            transition: border-color 0.3s ease; display: flex; justify-content: center; align-items: center;
         }
+        #guide-overlay::after { content: '+'; color: rgba(255, 255, 255, 0.3); font-size: 40px; font-weight: 100; }
+        .guide-active { border-color: #00E676 !important; }
 
-        body, html {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            position: fixed; /* Prevents screen bounce on mobile */
-        }
+        /* UI Controls */
+        #ui-panel { position: absolute; bottom: 0; width: 100%; padding: 30px 20px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); text-align: center; }
+        #instruction { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #FF4757; }
+        #progress { font-size: 14px; color: #aaa; margin-bottom: 20px; }
+        
+        button { padding: 15px 30px; border: none; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; transition: transform 0.1s; }
+        button:active { transform: scale(0.95); }
+        #capture-btn { background-color: #FF4757; color: white; width: 200px; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4); }
+        
+        /* 360 Preview UI */
+        #viewer-container { position: relative; width: 100%; max-width: 400px; height: 400px; cursor: grab; touch-action: pan-y; margin: auto; }
+        #viewer-container:active { cursor: grabbing; }
+        #product-image { width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; border-radius: 10px; }
+        
+        #preview-controls { position: absolute; bottom: 30px; width: 100%; text-align: center; display: flex; justify-content: center; gap: 15px; }
+        .btn-secondary { background: #333; color: white; }
+        .btn-primary { background: #00E676; color: black; }
+        .swipe-hint { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #888; animation: pulse 1.5s infinite; }
 
-        /* App Container */
-        #app {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        /* Floating Header */
-        header {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 20px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .profile-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        /* Spinning DP Aura */
-        .dp-container {
-            position: relative;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: conic-gradient(from 0deg, #007bff, #00d2ff, #007bff);
-            animation: spinAura 3s linear infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .dp-container::after {
-            content: '';
-            position: absolute;
-            width: 41px;
-            height: 41px;
-            background: var(--bg-color);
-            border-radius: 50%;
-            z-index: 1;
-        }
-
-        .dp-text {
-            position: relative;
-            z-index: 2;
-            font-weight: 700;
-            font-size: 18px;
-            color: var(--text-main);
-        }
-
-        @keyframes spinAura {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .header-info h1 {
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        /* Secure AI Pulse Dot */
-        .secure-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 3px;
-        }
-
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #00ff88;
-            border-radius: 50%;
-            box-shadow: 0 0 8px #00ff88;
-            animation: pulse 1.5s infinite alternate;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.4; box-shadow: 0 0 2px #00ff88; }
-            100% { opacity: 1; box-shadow: 0 0 10px #00ff88; }
-        }
-
-        /* Chat Window */
-        #chat-window {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            scroll-behavior: smooth;
-        }
-
-        #chat-window::-webkit-scrollbar {
-            width: 4px;
-        }
-        #chat-window::-webkit-scrollbar-thumb {
-            background: var(--glass-border);
-            border-radius: 10px;
-        }
-
-        /* Glassmorphism Bubbles */
-        .message {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 14.5px;
-            line-height: 1.5;
-            word-wrap: break-word;
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fadeIn 0.3s forwards ease-out;
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .msg-bot {
-            align-self: flex-start;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-left: 4px solid var(--accent-blue); /* 4px blue accent */
-            border-bottom-left-radius: 4px;
-        }
-
-        .msg-user {
-            align-self: flex-end;
-            background: #1a1a24;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-bottom-right-radius: 4px;
-        }
-
-        /* Input Area */
-        #input-container {
-            padding: 15px 20px;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid var(--glass-border);
-            display: flex;
-            gap: 10px;
-            padding-bottom: env(safe-area-inset-bottom, 15px); /* iOS safe area */
-        }
-
-        input {
-            flex-grow: 1;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            padding: 14px 20px;
-            border-radius: 30px;
-            color: var(--text-main);
-            font-size: 15px;
-            outline: none;
-            transition: border 0.3s;
-        }
-
-        input:focus {
-            border-color: var(--accent-blue);
-        }
-
-        button {
-            background: var(--accent-blue);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s, background 0.2s;
-        }
-
-        button:active {
-            transform: scale(0.9);
-        }
-
-        button svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-            margin-left: 2px;
-        }
-
-        /* Loading Dots */
-        .typing-indicator {
-            display: none;
-            align-self: flex-start;
-            padding: 12px 16px;
-            background: var(--glass-bg);
-            border-left: 4px solid var(--accent-blue);
-            border-radius: 12px;
-            border-bottom-left-radius: 4px;
-        }
-        .typing-indicator span {
-            display: inline-block;
-            width: 6px;
-            height: 6px;
-            background: var(--accent-blue);
-            border-radius: 50%;
-            margin: 0 2px;
-            animation: bounce 1.4s infinite ease-in-out both;
-        }
-        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
-        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        canvas { display: none; }
     </style>
 </head>
 <body>
 
-<div id="app">
-    <header>
-        <div class="profile-section">
-            <div class="dp-container">
-                <span class="dp-text">IH</span>
-            </div>
-            <div class="header-info">
-                <h1>Innovation Hub</h1>
-                <div class="secure-status">
-                    <div class="pulse-dot"></div>
-                    Secure AI Agent
-                </div>
-            </div>
+    <!-- SCREEN 1: Camera & Capture -->
+    <div id="camera-screen">
+        <div id="video-container">
+            <video id="camera" autoplay playsinline></video>
+            <div id="guide-overlay"></div>
         </div>
-    </header>
-
-    <div id="chat-window">
-        <div class="message msg-bot">Hi! I'm the official Innovation Hub AI. Whether you need Web Development, Video Editing, or Thumbnail Design, I'm here to answer your questions about Dipesh's services. How can I help?</div>
-        <div class="typing-indicator" id="typing">
-            <span></span><span></span><span></span>
+        <div id="ui-panel">
+            <div id="instruction">Angle 1: Front View</div>
+            <div id="progress">0 / 8 Photos Captured</div>
+            <button id="capture-btn" onclick="takePhoto()">Capture Perfect Frame</button>
         </div>
     </div>
 
-    <div id="input-container">
-        <input type="text" id="user-input" placeholder="Message Innovation Hub..." autocomplete="off">
-        <button id="send-btn">
-            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-        </button>
+    <!-- SCREEN 2: 360 Interactive Preview -->
+    <div id="preview-screen">
+        <div id="viewer-container">
+            <div class="swipe-hint">↔ Swipe left/right to rotate</div>
+            <img id="product-image" src="" alt="360 Burger Preview">
+        </div>
+        <div id="preview-controls">
+            <button class="btn-secondary" onclick="resetSystem()">Retake All</button>
+            <button class="btn-primary" onclick="uploadData()">Looks Good! (Upload)</button>
+        </div>
     </div>
-</div>
 
-<script>
-    // --- Mobile Keyboard Fix (Tecno Pova 6 Neo & Androids) ---
-    const appContainer = document.getElementById('app');
-    if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', () => {
-            appContainer.style.height = window.visualViewport.height + 'px';
-            window.scrollTo(0, 0);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        });
-    }
+    <!-- Hidden Canvas to process images -->
+    <canvas id="canvas"></canvas>
 
-    // --- DOM Elements ---
-    const chatWindow = document.getElementById('chat-window');
-    const userInput = document.getElementById('user-input');
-    const sendBtn = document.getElementById('send-btn');
-    const typingIndicator = document.getElementById('typing');
+    <script>
+        // --- 1. System Variables ---
+        const totalAngles = 8;
+        const capturedImages = [];
+        const anglesGuide = [
+            "Angle 1: Front View", 
+            "Angle 2: Rotate Object 45° Right", 
+            "Angle 3: Rotate Object 90° Right", 
+            "Angle 4: Back-Right Angle", 
+            "Angle 5: Complete Back View", 
+            "Angle 6: Back-Left Angle", 
+            "Angle 7: Rotate Object 90° Left", 
+            "Angle 8: Front-Left Angle"
+        ];
 
-    // --- Typewriter Effect (6ms fast reply) ---
-    function typeWriter(element, text, index = 0) {
-        if (index < text.length) {
-            element.textContent += text.charAt(index);
-            chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll
-            setTimeout(() => typeWriter(element, text, index + 1), 6);
-        }
-    }
-
-    function addMessage(text, sender) {
-        const msgDiv = document.createElement('div');
-        msgDiv.classList.add('message', sender === 'user' ? 'msg-user' : 'msg-bot');
+        // --- DOM Elements ---
+        const video = document.getElementById('camera');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
         
-        chatWindow.insertBefore(msgDiv, typingIndicator);
+        const cameraScreen = document.getElementById('camera-screen');
+        const previewScreen = document.getElementById('preview-screen');
+        const guideOverlay = document.getElementById('guide-overlay');
+        const instructionTxt = document.getElementById('instruction');
+        const progressTxt = document.getElementById('progress');
         
-        if (sender === 'bot') {
-            typeWriter(msgDiv, text);
-        } else {
-            msgDiv.textContent = text;
-        }
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
+        // Viewer elements
+        const viewerContainer = document.getElementById('viewer-container');
+        const productImg = document.getElementById('product-image');
 
-    // --- API Fetch Logic ---
-    async function sendMessage() {
-        const text = userInput.value.trim();
-        if (!text) return;
+        let videoStream = null;
 
-        addMessage(text, 'user');
-        userInput.value = '';
-        typingIndicator.style.display = 'block';
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-
-        try {
-            // Connecting Frontend to Vercel Backend
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text })
-            });
-
-            const data = await response.json();
-            typingIndicator.style.display = 'none';
-
-            if (data.reply) {
-                addMessage(data.reply, 'bot');
-            } else {
-                addMessage("System error: Unable to reach knowledge base.", 'bot');
+        // --- 2. Camera Setup ---
+        async function startCamera() {
+            try {
+                // Phone ke back camera ko force karne ke liye 'environment'
+                videoStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment', width: { ideal: 1080 }, height: { ideal: 1080 } } 
+                });
+                video.srcObject = videoStream;
+            } catch (err) {
+                alert("Camera access denied ya support nahi kar raha. " + err);
             }
-        } catch (error) {
-            typingIndicator.style.display = 'none';
-            addMessage("Network error: Please check your connection.", 'bot');
-        }
-    }
-
-    sendBtn.addEventListener('click', sendMessage);
-    userInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendMessage();
-    });
-</script>
-
-</body>
-</html>            flex-direction: column;
-            height: 100%;
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            position: relative;
         }
 
-        /* Floating Header */
-        header {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 20px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--glass-border);
-        }
+        // Initialize camera on load
+        startCamera();
 
-        .profile-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+        // --- 3. Capture Logic ---
+        function takePhoto() {
+            if (capturedImages.length >= totalAngles) return;
 
-        /* Spinning DP Aura */
-        .dp-container {
-            position: relative;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: conic-gradient(from 0deg, #007bff, #00d2ff, #007bff);
-            animation: spinAura 3s linear infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+            // Visual feedback: Overlay ko green kardo ek second ke liye
+            guideOverlay.classList.add('guide-active');
+            setTimeout(() => guideOverlay.classList.remove('guide-active'), 300);
 
-        .dp-container::after {
-            content: '';
-            position: absolute;
-            width: 41px;
-            height: 41px;
-            background: var(--bg-color);
-            border-radius: 50%;
-            z-index: 1;
-        }
-
-        .dp-text {
-            position: relative;
-            z-index: 2;
-            font-weight: 700;
-            font-size: 18px;
-            color: var(--text-main);
-        }
-
-        @keyframes spinAura {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .header-info h1 {
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        /* Secure AI Pulse Dot */
-        .secure-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 3px;
-        }
-
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #00ff88;
-            border-radius: 50%;
-            box-shadow: 0 0 8px #00ff88;
-            animation: pulse 1.5s infinite alternate;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.4; box-shadow: 0 0 2px #00ff88; }
-            100% { opacity: 1; box-shadow: 0 0 10px #00ff88; }
-        }
-
-        /* Chat Window */
-        #chat-window {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            scroll-behavior: smooth;
-        }
-
-        #chat-window::-webkit-scrollbar {
-            width: 4px;
-        }
-        #chat-window::-webkit-scrollbar-thumb {
-            background: var(--glass-border);
-            border-radius: 10px;
-        }
-
-        /* Glassmorphism Bubbles */
-        .message {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 14.5px;
-            line-height: 1.5;
-            word-wrap: break-word;
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fadeIn 0.3s forwards ease-out;
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .msg-bot {
-            align-self: flex-start;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-left: 4px solid var(--accent-blue); /* 4px blue accent */
-            border-bottom-left-radius: 4px;
-        }
-
-        .msg-user {
-            align-self: flex-end;
-            background: #1a1a24;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-bottom-right-radius: 4px;
-        }
-
-        /* Input Area */
-        #input-container {
-            padding: 15px 20px;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid var(--glass-border);
-            display: flex;
-            gap: 10px;
-            padding-bottom: env(safe-area-inset-bottom, 15px); /* iOS safe area */
-        }
-
-        input {
-            flex-grow: 1;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            padding: 14px 20px;
-            border-radius: 30px;
-            color: var(--text-main);
-            font-size: 15px;
-            outline: none;
-            transition: border 0.3s;
-        }
-
-        input:focus {
-            border-color: var(--accent-blue);
-        }
-
-        button {
-            background: var(--accent-blue);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s, background 0.2s;
-        }
-
-        button:active {
-            transform: scale(0.9);
-        }
-
-        button svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-            margin-left: 2px;
-        }
-
-        /* Loading Dots */
-        .typing-indicator {
-            display: none;
-            align-self: flex-start;
-            padding: 12px 16px;
-            background: var(--glass-bg);
-            border-left: 4px solid var(--accent-blue);
-            border-radius: 12px;
-            border-bottom-left-radius: 4px;
-        }
-        .typing-indicator span {
-            display: inline-block;
-            width: 6px;
-            height: 6px;
-            background: var(--accent-blue);
-            border-radius: 50%;
-            margin: 0 2px;
-            animation: bounce 1.4s infinite ease-in-out both;
-        }
-        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
-        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-    </style>
-</head>
-<body>
-
-<div id="app">
-    <header>
-        <div class="profile-section">
-            <div class="dp-container">
-                <span class="dp-text">IH</span>
-            </div>
-            <div class="header-info">
-                <h1>Innovation Hub</h1>
-                <div class="secure-status">
-                    <div class="pulse-dot"></div>
-                    Secure AI Agent
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <div id="chat-window">
-        <div class="message msg-bot">Hi! I'm the official Innovation Hub AI. Whether you need Web Development, Video Editing, or Thumbnail Design, I'm here to answer your questions about Dipesh's services. How can I help?</div>
-        <div class="typing-indicator" id="typing">
-            <span></span><span></span><span></span>
-        </div>
-    </div>
-
-    <div id="input-container">
-        <input type="text" id="user-input" placeholder="Message Innovation Hub..." autocomplete="off">
-        <button id="send-btn">
-            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-        </button>
-    </div>
-</div>
-
-<script>
-    // --- Mobile Keyboard Fix (Tecno Pova 6 Neo & Androids) ---
-    const appContainer = document.getElementById('app');
-    if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', () => {
-            appContainer.style.height = window.visualViewport.height + 'px';
-            window.scrollTo(0, 0);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        });
-    }
-
-    // --- DOM Elements ---
-    const chatWindow = document.getElementById('chat-window');
-    const userInput = document.getElementById('user-input');
-    const sendBtn = document.getElementById('send-btn');
-    const typingIndicator = document.getElementById('typing');
-
-    // --- Typewriter Effect (6ms fast reply) ---
-    function typeWriter(element, text, index = 0) {
-        if (index < text.length) {
-            element.textContent += text.charAt(index);
-            chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll
-            setTimeout(() => typeWriter(element, text, index + 1), 6);
-        }
-    }
-
-    function addMessage(text, sender) {
-        const msgDiv = document.createElement('div');
-        msgDiv.classList.add('message', sender === 'user' ? 'msg-user' : 'msg-bot');
-        
-        chatWindow.insertBefore(msgDiv, typingIndicator);
-        
-        if (sender === 'bot') {
-            typeWriter(msgDiv, text);
-        } else {
-            msgDiv.textContent = text;
-        }
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
-
-    // --- API Fetch Logic ---
-    async function sendMessage() {
-        const text = userInput.value.trim();
-        if (!text) return;
-
-        addMessage(text, 'user');
-        userInput.value = '';
-        typingIndicator.style.display = 'block';
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-
-        try {
-            // Connecting Frontend to Vercel Backend
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text })
-            });
-
-            const data = await response.json();
-            typingIndicator.style.display = 'none';
-
-            if (data.reply) {
-                addMessage(data.reply, 'bot');
+            // Canvas size video feed jitna set karo
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Draw frame to canvas and convert to Base64 Image
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8); // 0.8 is quality
+            
+            capturedImages.push(imageDataUrl);
+            
+            // Update UI
+            progressTxt.innerText = `${capturedImages.length} / ${totalAngles} Photos Captured`;
+            
+            if (capturedImages.length < totalAngles) {
+                // Next angle ka instruction dikhao
+                instructionTxt.innerText = anglesGuide[capturedImages.length];
             } else {
-                addMessage("System error: Unable to reach knowledge base.", 'bot');
+                // 8 photos puri ho gayi! Camera stop karo aur preview dikhao
+                stopCamera();
+                showPreview();
             }
-        } catch (error) {
-            typingIndicator.style.display = 'none';
-            addMessage("Network error: Please check your connection.", 'bot');
         }
-    }
 
-    sendBtn.addEventListener('click', sendMessage);
-    userInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendMessage();
-    });
-</script>
+        function stopCamera() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+        }
 
+        // --- 4. 360 Preview Logic (Glitch Free) ---
+        let currentFrame = 1;
+        let isDragging = false;
+        let startX = 0;
+        let startFrame = 1;
+        const sensitivity = 15; // Swipe speed control
+
+        function showPreview() {
+            cameraScreen.style.display = 'none';
+            previewScreen.style.display = 'flex';
+            
+            // Pehli image load karo
+            productImg.src = capturedImages[0];
+            
+            // Event listeners for Touch & Mouse
+            viewerContainer.addEventListener('pointerdown', startDrag);
+            window.addEventListener('pointermove', onDrag);
+            window.addEventListener('pointerup', endDrag);
+            window.addEventListener('pointercancel', endDrag);
+        }
+
+        function startDrag(e) {
+            isDragging = true;
+            startX = e.clientX;
+            startFrame = currentFrame;
+        }
+
+        function onDrag(e) {
+            if (!isDragging) return;
+            
+            let currentX = e.clientX;
+            let distanceMoved = currentX - startX;
+            let framesToMove = Math.floor(distanceMoved / sensitivity);
+            
+            // Loop array perfectly
+            currentFrame = (startFrame - framesToMove) % totalAngles;
+            if (currentFrame <= 0) {
+                currentFrame += totalAngles;
+            }
+
+            // Real-time update image source from array
+            productImg.src = capturedImages[currentFrame - 1];
+        }
+
+        function endDrag() {
+            isDragging = false;
+        }
+
+        // --- 5. System Controls ---
+        function resetSystem() {
+            capturedImages.length = 0; // Clear array
+            currentFrame = 1;
+            instructionTxt.innerText = anglesGuide[0];
+            progressTxt.innerText = `0 / ${totalAngles} Photos Captured`;
+            
+            previewScreen.style.display = 'none';
+            cameraScreen.style.display = 'flex';
+            
+            startCamera();
+        }
+
+        function uploadData() {
+            // Production me yahan se capturedImages array backend (Firebase) pe jayega
+            alert("Perfect! Yeh 8 images ab database me save hongi aur user ko app me dikhengi.");
+        }
+    </script>
 </body>
 </html>
